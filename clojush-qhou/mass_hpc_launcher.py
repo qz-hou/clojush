@@ -1,25 +1,25 @@
 import os
 
-name_suffix = "-suffix"
+name_suffix = "-SimpSet"
 
-basedir = "/home/thelmuth/Collab/thelmuth/Results/parent-selection-v3-UMAD/co-solvability/%s/"
-other_push_args = ":parent-selection :lexicase :genetic-operator-probabilities {:uniform-addition-and-deletion,1}"
+basedir = "/usr/local/research/compsci/helmuth/qhou/Results/HPC-logs/"
+other_push_args = ":parent-selection :lexicase :genetic-operator-probabilities {:modified-uniform-addition-and-deletion,1} :uniform-addition-and-deletion-rate 0.09 :print-timings true"
 
 
 run_numbers = "0-99"
 
 problems = ["compare-string-lengths",
-            "double-letters",
-            "replace-space-with-newline",
-            "string-lengths-backwards",
-            "last-index-of-zero",
-            "vector-average",
-            "mirror-image",
-            "x-word-lines",
-            "negative-to-zero",
-            "scrabble-score",
-            "smallest",
-            "syllables"
+            #"double-letters",
+            #"replace-space-with-newline",
+           # "string-lengths-backwards",
+           # "last-index-of-zero",
+           # "vector-average",
+           # "mirror-image",
+           # "x-word-lines",
+           # "negative-to-zero",
+           # "scrabble-score",
+           # "smallest",
+           # "syllables"
 ]
 
 #problems = ["vector-average"]
