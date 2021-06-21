@@ -2,7 +2,7 @@ import os
 
 name_suffix = "-SimpSet"
 
-basedir = "/usr/local/research/compsci/helmuth/qhou/Results/HPC-logs/"
+basedir = "/usr/local/research/compsci/helmuth/qhou/Results/HPC-logs/%s/"
 other_push_args = ":parent-selection :lexicase :genetic-operator-probabilities {:modified-uniform-addition-and-deletion,1} :uniform-addition-and-deletion-rate 0.09 :print-timings true"
 
 
