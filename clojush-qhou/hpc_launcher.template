@@ -7,7 +7,7 @@
 #PBS -j oe         
 #PBS -l walltime=72:00:00 
 #PBS -r y
-#PBS -o #dir#/HPC-logs/
+#PBS -o #dir#
 #PBS -t #run-numbers#
 # This last line is the range of the number of jobs to start, inclusive
 
