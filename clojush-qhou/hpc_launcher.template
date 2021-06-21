@@ -1,9 +1,9 @@
 #PBS -N #qsub-name#
 #PBS -l nodes=1:ppn=8
 #PBS -l mem=20GB
-#PBS -q una
-#PBS -M thelmuth@hamilton.edu
-#PBS -m n
+#PBS -q una-new
+#PBS -M qhou@hamilton.edu
+#PBS -m e
 #PBS -j oe         
 #PBS -l walltime=72:00:00 
 #PBS -r y
