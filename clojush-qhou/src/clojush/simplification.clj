@@ -224,8 +224,6 @@
         (println "errors:" (not-lazy errors))
         (println "genome size:" (count genome))
         (println "program size:" (count-points program)))
-      (def current_ele
-        #{})
       (if (>= step steps)
         (make-individual :genome genome :program program :errors errors :total-error (apply + errors)
                          :history (:history ind) :genetic-operators :simplification)
@@ -233,10 +231,7 @@
               new-program (translate-plush-genome-to-push-program {:genome new-genome}
                                                                   {:max-points (* 10 (count genome))})
               new-errors (:errors (error-function {:program new-program}))]
-          (conj current_ele new-genome)
           (if (and (= new-errors errors)
                    (<= (count-points new-program) (count-points program)))
-            (do (conj failed_func current_ele)
-            (recur (inc step) new-genome new-program new-errors))
-            (do (conj passed_func current_ele)
-            (recur (inc step) genome program errors))))))))
+            (recur (inc step) new-genome new-program new-errors)
+            (recur (inc step) genome program errors)))))))
