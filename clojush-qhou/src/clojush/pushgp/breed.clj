@@ -23,6 +23,7 @@
    :uniform-deletion {:fn uniform-deletion :parents 1 :works-with-plushy true :works-with-plush true}
    :uniform-addition {:fn uniform-addition :parents 1 :works-with-plushy true :works-with-plush true}
    :uniform-addition-and-deletion {:fn uniform-addition-and-deletion :parents 1 :works-with-plushy true :works-with-plush true}
+   :modified-uniform-addition-and-deletion {:fn modified-uniform-addition-and-deletion :parents 1 :works-with-plushy true :works-with-plush true}
    :uniform-combination {:fn uniform-combination :parents 2 :works-with-plushy true :works-with-plush true}
    :uniform-combination-and-deletion {:fn uniform-combination-and-deletion :parents 2 :works-with-plushy true :works-with-plush true}
    :genesis {:fn genesis :parents 0 :works-with-plushy true :works-with-plush true} ;; the parent will be ignored
@@ -58,16 +59,16 @@
   "Evaluates child and parent, returning the child if it is at least as good as
    the parent on every test case."
   [child parent rand-gen {:keys [error-function parent-reversion-probability] :as argmap}]
-  (let [evaluated-child (evaluate-individual 
-                          (assoc child :program (translate-plush-genome-to-push-program child argmap))
-                          error-function rand-gen argmap)]
+  (let [evaluated-child (evaluate-individual
+                         (assoc child :program (translate-plush-genome-to-push-program child argmap))
+                         error-function rand-gen argmap)]
     (if (>= (lrand) parent-reversion-probability)
       evaluated-child
       (let [child-errors (:errors evaluated-child)
-            evaluated-parent (evaluate-individual 
-                               (assoc parent :program 
-                                 (translate-plush-genome-to-push-program parent argmap))
-                               error-function rand-gen argmap)
+            evaluated-parent (evaluate-individual
+                              (assoc parent :program
+                                     (translate-plush-genome-to-push-program parent argmap))
+                              error-function rand-gen argmap)
             parent-errors (:errors evaluated-parent)]
         (if (reduce #(and %1 %2)
                     (map <= child-errors parent-errors))
@@ -97,13 +98,13 @@
                      operator-list)
            operator (first op-list)
            num-parents (:parents (get genetic-operators operator))
-           other-parents (vec (repeatedly 
-                               (dec num-parents) 
+           other-parents (vec (repeatedly
+                               (dec num-parents)
                                (fn []
                                  (loop [re-selections 0
                                         other (select population argmap)]
                                    (if (and (= other first-parent)
-                                            (< re-selections 
+                                            (< re-selections
                                                (:self-mate-avoidance-limit argmap)))
                                      (recur (inc re-selections)
                                             (select population argmap))
@@ -132,28 +133,30 @@
   (update individual :genome
           (fn [genome]
             (mapv (fn [instruction-map]
-                   (if (:random-insertion instruction-map)
-                     (dissoc instruction-map :random-insertion)
-                     (assoc instruction-map
-                            :parent-uuid (:uuid instruction-map)
-                            :uuid (java.util.UUID/randomUUID))))
-                 genome))))
+                    (if (:random-insertion instruction-map)
+                      (dissoc instruction-map :random-insertion)
+                      (assoc instruction-map
+                             :parent-uuid (:uuid instruction-map)
+                             :uuid (java.util.UUID/randomUUID))))
+                  genome))))
 
 (defn perform-genetic-operator
   "Takes a single genetic operator keyword or a sequence of operator keywords,
    and performs them to create a new individual. Uses recursive helper function
    even with a single operator by putting that operator in a vector."
-  [operator population location rand-gen 
+  [operator population location rand-gen
    {:keys [max-points genome-representation
-           track-instruction-maps] :as argmap}]
+           track-instruction-maps use-lineage-tagspaces] :as argmap}]
   (let [first-parent (if (= 0 (:parents (get genetic-operators operator)))
                        nil
                        (select population argmap))
         operator-vector (if (sequential? operator) operator (vector operator))
-        child (perform-genetic-operator-list operator-vector first-parent
-                                             population location rand-gen argmap)]
+        child (perform-genetic-operator-list operator-vector
+                                             (assoc first-parent :parent-uuids (vector (:uuid first-parent)))
+                                             population location rand-gen argmap)
+        child (if use-lineage-tagspaces (assoc child :tagspace (:tagspace first-parent)) child)]
     (cond->
-        (assoc child :genetic-operators operator)
+     (assoc child :genetic-operators operator)
 
       (> (count (:genome child))
          (* (/ max-points 4)
@@ -209,7 +212,7 @@
                                                        (vec genetic-operator-probabilities))]
             (if (or (= 1 (count vectored-go-probabilities))
                     (<= prob (second (first vectored-go-probabilities))))
-              (perform-genetic-operator (first (first vectored-go-probabilities)) 
+              (perform-genetic-operator (first (first vectored-go-probabilities))
                                         pop location rand-gen argmap)
               (recur (rest vectored-go-probabilities)))))
         ; If false, then using ALPS and no individuals are in filtered pop. This
