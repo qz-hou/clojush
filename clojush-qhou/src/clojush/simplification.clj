@@ -194,7 +194,7 @@
      :silence - number of unsilenced or no-op genes to set :silent = true
      :unsilence - number of silenced or no-op genes to set :silent = false
      :no-op - number of unsilenced or silenced genes to set :silent = :no-op"
-  ([ind error-function steps print-progress-interval passed_func failed_func]
+  ([ind error-function steps print-progress-interval {:keys [passed failed] :as argmap}]
     (auto-simplify-plush ind error-function steps print-progress-interval
                          {{:silence 1} 0.5
                           {:silence 2} 0.3
@@ -204,8 +204,8 @@
                           ;{:silence 2 :unsilence 1} 0.1   ;Not used by default
                           ;{:silence 3 :unsilence 1} 0.05  ;Not used by default
                           ;{:no-op 1} 0.05                 ;Not used by default
-                          } passed_func failed_func))
-  ([ind error-function steps print-progress-interval simplification-step-probabilities passed_func failed_func]
+                          } {:keys [passed failed] :as argmap}))
+  ([ind error-function steps print-progress-interval simplification-step-probabilities {:keys [passed failed] :as argmap}]
     (when (not (zero? print-progress-interval))
       (printf "\nAuto-simplifying Plush genome with starting size: %s" (count (:genome ind))))
     (loop [step 0
@@ -220,6 +220,7 @@
       (when (and (not (zero? print-progress-interval))
                  (or (>= step steps)
                      (zero? (mod step print-progress-interval))))
+        (println "autosimplifying...")
         (println "\nstep:" step)
         (println "genome:" (pr-str (not-lazy genome)))
         (println "program:" (pr-str (not-lazy program)))
@@ -237,7 +238,11 @@
               new-errors (:errors (error-function {:program new-program}))]
           (if (and (= new-errors errors)
                    (<= (count-points new-program) (count-points program)))
-            (do (conj passed_func curr-ele)
+            (do (conj passed curr-ele)
+                (assoc argmap :passed passed)
+                (println "in simp passed are:" passed)
                 (recur (inc step) new-genome new-program new-errors))
-            (do (conj failed_func curr-ele)
+            (do (conj failed curr-ele)
+                (println "in simp failed are:" failed)
+                (assoc argmap :failed failed)
                 (recur (inc step) genome program errors))))))))
