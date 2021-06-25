@@ -230,8 +230,7 @@
       (def curr-ele
         #{})
       (if (>= step steps)
-        (make-individual :genome genome :program program :errors errors :total-error (apply + errors)
-                         :history (:history ind) :genetic-operators :simplification)
+        ([passed failed])
         (let [new-genome (apply-simplification-step-to-genome genome simplification-step-probabilities curr-ele)
               new-program (translate-plush-genome-to-push-program {:genome new-genome}
                                                                   {:max-points (* 10 (count genome))})
@@ -240,9 +239,7 @@
                    (<= (count-points new-program) (count-points program)))
             (do (conj failed curr-ele)
                 (assoc argmap :failed failed)
-                (println "in test failed are:" failed)
                 (recur (inc step) new-genome new-program new-errors))
             (do (conj passed curr-ele)
                 (println "in test passed are:" passed)
-                (assoc argmap :passed passed)
                 (recur (inc step) genome program errors))))))))
