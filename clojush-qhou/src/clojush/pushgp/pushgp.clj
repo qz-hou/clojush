@@ -172,7 +172,7 @@
   "Processes the generation, returning [new novelty archive, return val],
    where new novelty archive will be nil if we are done."
   [rand-gens pop-agents child-agents generation novelty-archive
-   {:keys [population-size use-single-thread] :as argmap}]
+   {:keys [population-size use-single-thread passed failed] :as argmap}]
   (r/new-generation! generation)
   (println "Processing generation:" generation)
   (case (:genome-representation @push-argmap)
@@ -293,6 +293,13 @@
                                       (when-not (:use-single-thread @push-argmap (apply await pop-agents))) ;; SYNCHRONIZE
                                       (reset! delay-archive [])))
                                   (timer @push-argmap :report)
+                                  (let [[curpassed curfailed] (repeatedly 50 (fn [] (auto-simplify-plush (select (map #(deref %) pop-agents) @push-argmap) (:error-function @push-argmap) 25 0 passed failed)))]
+                                       (conj passed curpassed)
+                                       (conj failed curfailed)
+                                       (println "passed are:" passed)
+                                       (println "failed are:" failed)
+                                       (assoc @push-argmap :failed failed)
+                                       (assoc @push-argmap :passed passed))
                                   (println "\nProducing offspring...") (flush)
                                   (produce-new-offspring pop-agents
                                                          child-agents
@@ -329,6 +336,8 @@
      (let [pop-agents (make-pop-agents @push-argmap)
            child-agents (make-child-agents @push-argmap)
            {:keys [rand-gens]} (make-rng @push-argmap)]
+       (swap! push-argmap assoc :passed #{})
+       (swap! push-argmap assoc :failed #{})
        (loop [generation 0
               novelty-archive '()]
          (let [[next-novelty-archive return-val]
