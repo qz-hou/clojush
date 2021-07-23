@@ -295,7 +295,7 @@
                                   (timer @push-argmap :report)
                                   (println "start simp")
                                   (repeatedly 50 (let [vectorr
-                                                       (auto-simplify-plush (select (map #(deref %) pop-agents) @push-argmap) (:error-function @push-argmap) (:training-cases @push-argmap) 10 0)]))
+                                                       (auto-simplify-plush (select (map #(deref %) pop-agents) @push-argmap) (:error-function @push-argmap) (:training-cases @push-argmap) 25 0)]))
                                   (prn "passed are:" (:passed-set @the-map))
                                   (prn "failed are:" (:failed-set @the-map))
                                   (println "\nProducing offspring...") (flush)
