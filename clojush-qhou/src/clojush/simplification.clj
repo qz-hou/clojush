@@ -190,16 +190,6 @@
     (vector ret-set new-gen)))
 
 
-    (defn get-partial-errors
-      "Takes a genome and a map of transformation/probability pairs. Picks a transformation
-       probabilistically, and then applies it to the genome by silencing/unsilencing/no-oping
-       random genes that aren't already of that type."
-      [program new-program cases error-function]
-      (let [old-par (:errors (error-function {:program program} cases true))
-            new-par (:errors (error-function {:program new-program} cases true))]
-        (vector old-par new-par)))
-
-
 
 
 
@@ -253,10 +243,8 @@
           (let [[curr-ele new-genome] (apply-simplification-step-to-genome genome simplification-step-probabilities)
                 new-program (translate-plush-genome-to-push-program {:genome new-genome}
                                                                     {:max-points (* 10 (count genome))})
-                cases (list (rand-nth test-cases) (rand-nth test-cases))
-                [old-par new-par] (get-partial-errors program new-program cases error-function)
                 new-errors (:errors (error-function {:program new-program}))]
-            (if (and (= new-par old-par)
+            (if (and (= new-error errors)
                    (<= (count-points new-program) (count-points program)))
             (do (if (not (= #{} (:failed-set @the-map)))
                   (swap! the-map assoc :failed-set (clojure.set/union curr-ele (:failed-set @the-map)))
