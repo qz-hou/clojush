@@ -82,17 +82,19 @@
           ;; The list of training cases (inputs and outputs). Used for some parent
           ;; selection methods, such as downsampled lexicase.
 
+         :test-cases '()
+
          :sub-training-cases '()
           ;; The subsample of the training cases used for downsampled lexicase.
 
-         
+
           ;;----------------------------------------
           ;; Genetic operator probabilities
           ;;----------------------------------------
 
          :genetic-operator-probabilities {:reproduction 0.0
-                                          :alternation 0.7
-                                          :uniform-mutation 0.1
+                                          :alternation 0.0
+                                          :uniform-mutation 0.0
                                           :uniform-instruction-mutation 0.0
                                           :uniform-integer-mutation 0.0
                                           :uniform-float-mutation 0.0
@@ -100,7 +102,7 @@
                                           :uniform-string-mutation 0.0
                                           :uniform-boolean-mutation 0.0
                                            ; Similar to the old ULTRA operator:
-                                          [:alternation :uniform-mutation] 0.2
+                                          [:alternation :uniform-mutation] 0.0
                                           :uniform-close-mutation 0.0
                                           :uniform-silence-mutation 0.0
                                           :uniform-crossover 0.0
@@ -111,6 +113,7 @@
                                           :uniform-deletion 0.0
                                           :uniform-addition 0.0
                                           :uniform-addition-and-deletion 0.0
+                                          :modified-uniform-addition-and-deletion 1
                                           :uniform-combination-and-deletion 0.0
                                           :genesis 0.0
                                           :gene-selection 0.0
@@ -174,9 +177,16 @@
          :uniform-addition-and-deletion-rate 0.01
           ;; The probability, per gene, for additions in the first phase, and deletions in the second
           ;; phase (calculated for size-neutrality), of uniform-addition-and-deletion.
-         
-         
-         :add-instruction-from-other-rate
+
+         :add-instruction-from-other-rate 0.01
+
+         :passed-func #{}
+
+         :failed-func #{}
+
+         :passed #{}
+
+         :failed #{}
 
          :uniform-combination-rate 0.01
           ;; The probability, per gene, for combinations during uniform-combination
@@ -193,7 +203,7 @@
           ;; or that a pair of segments will be transposed with uniform-segment-reordering.
 
          :uniform-segmenting-rate 0.01
-          ;; The probability that segmenting for uniform-segment-transposition or 
+          ;; The probability that segmenting for uniform-segment-transposition or
           ;; uniform-segment-transposition will occur at each position in the genome.
 
          :uniform-transposition-rate 0.01
@@ -343,7 +353,7 @@
          :epsilon-lexicase-version :semi-dynamic
           ;; The version of epsilon-lexicase selection to use.
           ;; Options: :semi-dynamic (default and recommended), :dynamic, :static
-         
+
          :epsilon-lexicase-epsilon nil
           ;; When parent-selection is :epsilon-lexicase,
           ;; the value for epsilon. If nil, automatic epsilon lexicase selection will be used.
@@ -390,7 +400,7 @@
          ;; When set to integer > 1, sets the batch size for batch lexicase selection.
          ;; Should work with any parent selection that uses an individual's :errors,
          ;; such as lexicase, epsilon-lexicase, etc.
-         
+
          :tournament-size 7
           ;; If using tournament selection, the size of the tournaments.
 
@@ -432,7 +442,7 @@
           ;; If truthy, should be an integer which will be the number of history elements
           ;; used to calculate :lineage-redundancy meta-errors.
 
-         :decimation-ratio 1 
+         :decimation-ratio 1
           ;; If >= 1, does nothing. Otherwise, is the percent of the population
           ;; size that is retained before breeding. If 0 < decimation-ratio < 1, decimation
           ;; tournaments will be used to reduce the population to size (* population-size
@@ -447,7 +457,7 @@
 
          :print-preselection-fraction false
           ;; If true, keeps track of and prints the number of individuals that survive preselection
-          ;; each generation. Does not take into account one-individual-per-error-vector-for-lexicase. 
+          ;; each generation. Does not take into account one-individual-per-error-vector-for-lexicase.
 
          :self-mate-avoidance-limit 0
           ;; If non-zero, then when multiple parents are required for a genetic operator, an
@@ -667,7 +677,7 @@
          :label nil
           ;; If set, will send this in the configuration of the run, to the
           ;; external record
-         
+
          :calculate-mod-metrics false
           ;; If true, will calculate modularity metrics (reuse and repetition) as the run proceeds.
           ;; By default, metrics are calculated on the execution trace for a randomly chosen test case.
@@ -676,7 +686,7 @@
           ;; Number of simplification steps applied to a program before calculating mod metrics.
           ;; 0 implies simplification won't be carried out.
           ;; WARNING: Keep this value low as every individual in the population will be simplified for this many number of steps
-                
+
          )))
 
 (defn augment-for-autoconstruction

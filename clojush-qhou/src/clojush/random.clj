@@ -86,6 +86,9 @@
                       atom-generators
                       argmap))))
 
+(def the-map (atom {:passed-set #{} :failed-set #{}}))
+
+
 (defn random-plush-genome
   "Returns a random Plush genome with size limited by max-genome-size."
   ([max-genome-size atom-generators]
